@@ -8,3 +8,5 @@ output/
 logs/
 
 .DS_Store
+
+compare/images/
