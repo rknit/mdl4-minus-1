@@ -1,0 +1,40 @@
+# Test configuration for refactoring validation
+
+[experiment]
+disease_type = "T2D"
+
+[training]
+indi_epochs = 1
+shared_epochs = 1
+indi_batch = 64
+shared_batch = 64
+optimizer = "adam"
+
+[pretraining]
+enabled = true
+
+[early_stopping]
+enabled = true
+
+[cross_validation]
+strategy = "kfold"
+folds = 3
+random_seed = 42
+
+[performance]
+parallel_modalities = true
+use_gpu = true
+
+[preprocessing]
+pca_enabled = true
+
+[data]
+use_metadata = true
+class_weighting = true
+
+[paths]
+# Base directories (supports {disease_type} and {timestamp} placeholders)
+data_dir = "./data/{disease_type}"
+logs_base_dir = "./logs/{disease_type}/{timestamp}"
+tmp_base_dir = "./tmp/{disease_type}"
+output_base_dir = "./output/{disease_type}/{timestamp}"

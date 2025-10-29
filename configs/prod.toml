@@ -1,0 +1,54 @@
+# MDL4Microbiome(-1) Production Configuration
+# LOOCV with all improvements enabled for best accuracy
+
+[experiment]
+# Valid: "T2D", "CRC", "IBD", "cirrhosis"
+disease_type = "T2D"
+
+[training]
+indi_epochs = 100
+shared_epochs = 50
+# Larger batch size for efficiency (vs baseline batch=1)
+indi_batch = 64
+shared_batch = 64
+optimizer = "adam"
+
+[pretraining]
+enabled = false
+epochs = 50
+
+[early_stopping]
+enabled = false
+patience = 10
+min_delta = 0.0001
+restore_best_weights = true
+
+[cross_validation]
+# "loocv" or "kfold"
+strategy = "loocv"
+# Used only when strategy = "kfold"
+folds = 10
+# Random seed for k-fold reproducibility (LOOCV is deterministic)
+random_seed = 42
+
+[performance]
+parallel_modalities = true
+use_gpu = true
+
+[preprocessing]
+pca_enabled = false
+pca_variance_threshold = 0.95
+pca_min_features = 1000
+
+[data]
+# Enabled: Concatenate normalized metadata as additional features (improvement over baseline)
+use_metadata = true
+# Enabled: Use balanced class weights to handle imbalance (improvement over baseline)
+class_weighting = true
+
+[paths]
+# Base directories (supports {disease_type} and {timestamp} placeholders)
+data_dir = "./data/{disease_type}"
+logs_base_dir = "./logs/{disease_type}/{timestamp}"
+tmp_base_dir = "./tmp/{disease_type}"
+output_base_dir = "./output/{disease_type}/{timestamp}"

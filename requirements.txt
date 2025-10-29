@@ -1,0 +1,24 @@
+# MDL4Microbiome(-1) Requirements
+# Minimal multi-modal deep learning for microbiome disease classification
+
+# Core dependencies
+tensorflow>=2.16.0,<3.0.0
+keras>=3.10.0
+numpy>=1.26.0,<2.0.0
+pandas>=2.0.0
+scikit-learn>=1.6.0
+scipy>=1.13.0
+
+# Progress bars
+tqdm>=4.67.0
+
+# TOML configuration (Python < 3.11)
+# Note: Python 3.11+ has built-in tomllib, but tomli is backwards compatible
+tomli>=2.0.0; python_version < '3.11'
+
+# Optional: GPU acceleration (macOS with Apple Silicon)
+# tensorflow-macos>=2.16.0  # Uncomment for macOS
+# tensorflow-metal>=1.2.0   # Uncomment for macOS GPU
+
+# Optional: GPU acceleration (Linux/Windows with CUDA)
+# tensorflow[and-cuda]>=2.16.0  # Alternative for CUDA support

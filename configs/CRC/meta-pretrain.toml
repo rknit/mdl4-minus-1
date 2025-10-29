@@ -1,0 +1,50 @@
+# MDL4Microbiome(-1) Configuration (Baseline - exact replication of original MDL4)
+
+[experiment]
+# Valid: "T2D", "CRC", "IBD", "cirrhosis"
+disease_type = "CRC"
+
+[training]
+indi_epochs = 30
+shared_epochs = 20
+indi_batch = 256
+shared_batch = 256
+optimizer = "adam" # "adam" | "sgd"
+
+[pretraining]
+enabled = true
+epochs = 100
+
+[early_stopping]
+enabled = false
+patience = 10
+min_delta = 0.0001
+restore_best_weights = true
+
+[cross_validation]
+# "loocv" or "kfold"
+strategy = "loocv"
+# Used only when strategy = "kfold"
+folds = 10
+# Random seed for k-fold reproducibility (LOOCV is deterministic)
+random_seed = 42
+
+[performance]
+parallel_modalities = true
+use_gpu = false
+
+[preprocessing]
+pca_enabled = false
+pca_variance_threshold = 0.95
+pca_min_features = 1000
+
+[data]
+use_metadata = true
+class_weighting = true
+
+[paths]
+# Base directories (supports {disease_type} and {timestamp} placeholders)
+data_dir = "./data/{disease_type}"
+logs_base_dir = "./results/logs/{disease_type}/meta-pretrain/{timestamp}"
+tmp_base_dir = "./results/tmp/{disease_type}/meta-pretrain/{timestamp}"
+output_base_dir = "./results/output/{disease_type}/meta-pretrain/{timestamp}"
