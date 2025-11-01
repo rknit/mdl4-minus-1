@@ -4,9 +4,13 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-import tomli as tomllib
+try:
+    import tomllib  # type: ignore[import]
+except ModuleNotFoundError:
+    import tomli as tomllib  # type: ignore[import]
 
 # ============================== Template ===============================
+
 
 def generate_config_template() -> str:
     """
@@ -67,6 +71,7 @@ tmp_base_dir = "./tmp/{disease_type}"
 output_base_dir = "./output/{disease_type}/{timestamp}"
 """
 
+
 def write_template_to_file(output_path: str) -> bool:
     """
     Write the configuration template to a file.
@@ -88,8 +93,10 @@ def write_template_to_file(output_path: str) -> bool:
 
 # ============================== Errors ================================
 
+
 class ConfigValidationError(Exception):
     """Raised when configuration validation fails."""
+
     pass
 
 
@@ -149,7 +156,9 @@ class Config:
             )
         unknown = [s for s in config_dict.keys() if s not in _KNOWN_SECTIONS]
         if unknown:
-            print(f"WARNING: Unknown config sections (ignored): {', '.join(sorted(unknown))}")
+            print(
+                f"WARNING: Unknown config sections (ignored): {', '.join(sorted(unknown))}"
+            )
 
     def _load_and_validate(self, config_dict: Dict[str, Any]) -> None:
         errors: List[str] = []
@@ -160,7 +169,9 @@ class Config:
         if not self.disease_type:
             errors.append("experiment.disease_type is required")
         elif self.disease_type not in _ALLOWED_DISEASES:
-            errors.append(f"experiment.disease_type must be one of {sorted(_ALLOWED_DISEASES)}")
+            errors.append(
+                f"experiment.disease_type must be one of {sorted(_ALLOWED_DISEASES)}"
+            )
 
         # --- Training ---
         train = config_dict.get("training", {})
@@ -182,7 +193,9 @@ class Config:
 
         self.optimizer = str(train.get("optimizer", "adam")).lower()
         if self.optimizer not in _ALLOWED_OPTIMIZERS:
-            errors.append(f"training.optimizer must be one of {sorted(_ALLOWED_OPTIMIZERS)}")
+            errors.append(
+                f"training.optimizer must be one of {sorted(_ALLOWED_OPTIMIZERS)}"
+            )
 
         # --- Pretraining (optional) ---
         pre = config_dict.get("pretraining", {})
@@ -223,15 +236,21 @@ class Config:
             self.early_stopping_min_delta = 0.0001
         if self.early_stopping_min_delta < 0:
             errors.append("early_stopping.min_delta must be >= 0")
-        self.early_stopping_restore_best_weights = bool(es.get("restore_best_weights", True))
+        self.early_stopping_restore_best_weights = bool(
+            es.get("restore_best_weights", True)
+        )
 
         # --- Preprocessing (optional) ---
         prep = config_dict.get("preprocessing", {})
         self.pca_enabled = bool(prep.get("pca_enabled", False))
         try:
-            self.pca_variance_threshold = float(prep.get("pca_variance_threshold", 0.95))
+            self.pca_variance_threshold = float(
+                prep.get("pca_variance_threshold", 0.95)
+            )
         except (TypeError, ValueError):
-            errors.append("preprocessing.pca_variance_threshold must be a number in (0, 1]")
+            errors.append(
+                "preprocessing.pca_variance_threshold must be a number in (0, 1]"
+            )
             self.pca_variance_threshold = 0.95
         if not (0.0 < self.pca_variance_threshold <= 1.0):
             errors.append("preprocessing.pca_variance_threshold must be in (0.0, 1.0]")
@@ -247,9 +266,13 @@ class Config:
         # --- Paths (optional) ---
         paths = config_dict.get("paths", {})
         self.data_dir = str(paths.get("data_dir", "./data/{disease_type}"))
-        self.logs_base_dir = str(paths.get("logs_base_dir", "./logs/{disease_type}/{timestamp}"))
+        self.logs_base_dir = str(
+            paths.get("logs_base_dir", "./logs/{disease_type}/{timestamp}")
+        )
         self.tmp_base_dir = str(paths.get("tmp_base_dir", "./tmp/{disease_type}"))
-        self.output_base_dir = str(paths.get("output_base_dir", "./output/{disease_type}/{timestamp}"))
+        self.output_base_dir = str(
+            paths.get("output_base_dir", "./output/{disease_type}/{timestamp}")
+        )
 
         if errors:
             raise ConfigValidationError(
@@ -276,6 +299,7 @@ class Config:
 
 # ============================== Load from TOML ==========================
 
+
 def load_config(config_path: str) -> Config:
     """
     Load and validate a TOML configuration file.
@@ -285,7 +309,7 @@ def load_config(config_path: str) -> Config:
             f"Configuration file not found: {config_path}\n"
             f"Generate a template with: python ./src/main.py --init-config"
         )
-    
+
     with open(config_path, "rb") as f:
         config_dict = tomllib.load(f)
     return Config(config_dict)
@@ -293,9 +317,11 @@ def load_config(config_path: str) -> Config:
 
 # ======================= Immutable Structured View ======================
 
+
 @dataclass(frozen=True)
 class ExperimentConfig:
     disease_type: str
+
 
 @dataclass(frozen=True)
 class TrainingConfig:
@@ -305,10 +331,12 @@ class TrainingConfig:
     shared_batch: int
     optimizer: str  # "adam" | "sgd"
 
+
 @dataclass(frozen=True)
 class PretrainingConfig:
     enabled: bool
     epochs: int
+
 
 @dataclass(frozen=True)
 class EarlyStoppingConfig:
@@ -317,16 +345,19 @@ class EarlyStoppingConfig:
     min_delta: float
     restore_best_weights: bool
 
+
 @dataclass(frozen=True)
 class CrossValidationConfig:
-    strategy: str   # "loocv" | "kfold"
-    folds: int      # if loocv, kept at 10 for display/compat
+    strategy: str  # "loocv" | "kfold"
+    folds: int  # if loocv, kept at 10 for display/compat
     random_seed: int
+
 
 @dataclass(frozen=True)
 class PerformanceConfig:
     parallel_modalities: bool
     use_gpu: bool
+
 
 @dataclass(frozen=True)
 class PreprocessingConfig:
@@ -334,10 +365,12 @@ class PreprocessingConfig:
     pca_variance_threshold: float
     pca_min_features: int
 
+
 @dataclass(frozen=True)
 class DataConfig:
     use_metadata: bool
     class_weighting: bool
+
 
 @dataclass(frozen=True)
 class PathsConfig:
@@ -346,9 +379,11 @@ class PathsConfig:
     tmp_base_dir: str
     output_base_dir: str
 
+
 @dataclass(frozen=True)
 class StructuredConfig:
     """Immutable, nested view used by the rest of the app."""
+
     experiment: ExperimentConfig
     training: TrainingConfig
     pretraining: PretrainingConfig
